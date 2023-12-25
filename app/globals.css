@@ -4,6 +4,6 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-red-700 text-white rounded-full uppercase font-semibold text-sm p-2 disabled:opacity-50;
+    @apply bg-red-700 text-white rounded-full uppercase font-semibold text-sm py-2 px-6 disabled:opacity-50;
   }
 }

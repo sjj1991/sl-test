@@ -15,6 +15,16 @@ export default function Cart() {
 
   if (!loaded) return null;
 
+  if (cartItems.length < 1)
+    return (
+      <div className="grid place-content-center gap-4 text-center">
+        <div>No items in cart.</div>
+        <Link className="btn-primary" href="/">
+          Continue Shopping
+        </Link>
+      </div>
+    );
+
   return (
     <div className="flex gap-8 flex-wrap md:flex-nowrap">
       <CartList />
