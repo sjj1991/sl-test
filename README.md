@@ -108,3 +108,4 @@ bun run test
 Due to time constraints, limited unit testing coverage is available for the following components:
 
 - `app/ui/product/AddToCart.tsx`
+- `app/ui/CartBtn.tsx`
