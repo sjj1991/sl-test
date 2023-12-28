@@ -1,7 +1,6 @@
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { Product } from "@/app/lib/definitions";
 import AddToCart from "@/app/ui/product/AddToCart";
-import CartBtn from "@/app/ui/CartBtn";
 import Cart from "@/app/ui/Cart";
 
 const product1: Product = {
@@ -37,72 +36,73 @@ const product2: Product = {
   ],
 };
 
-const renderAddToCart = () => render(<AddToCart product={product1} />);
-const renderCartBtn = () => render(<CartBtn />);
 const renderCart = () => render(<Cart />);
+const renderAddToCart = () => render(<AddToCart product={product1} />);
 
-describe("AddToCart", () => {
-  it("should render with initial state of 1 quantity", () => {
-    renderAddToCart();
-    expect(screen.getByText("Add to cart")).toBeDefined();
-    expect(screen.getByText("1")).toBeDefined();
-  });
-
-  it("should show 'Added to cart' message when clicked and revert to original button text after 1500ms", async () => {
-    renderAddToCart();
-    const addToCartbutton = screen.getByText("Add to cart");
-    act(() => addToCartbutton.click());
-    await waitFor(() =>
-      expect(screen.getByText("Added to cart")).toBeDefined()
-    );
-    setTimeout(() => {
-      expect(screen.queryByText("Add to cart")).toBeDefined();
-    }, 1500);
-  });
-
-  it("should add item and quantity to CartStore when clicked", async () => {
-    renderAddToCart();
-    const plusButton = screen.getByText("+");
-    const addToCartbutton = screen.getByText("Add to cart");
-    act(() => plusButton.click());
-    act(() => addToCartbutton.click());
-    renderCartBtn();
+describe("Cart", () => {
+  it("should render with empty message when empty", () => {
     renderCart();
-    expect(screen.getByText("CART (2)")).toBeDefined();
-    expect(screen.getByText("iPhone 9")).toBeDefined();
-    expect(screen.getByText("2")).toBeDefined();
+    expect(screen.getByText("No items in cart.")).toBeDefined();
   });
 
-  it("should combine the same items in cart", async () => {
-    renderAddToCart();
-    const plusButton = screen.getByText("+");
-    const addToCartbutton = screen.getByText("Add to cart");
-    act(() => addToCartbutton.click()); // Add 1 item
-    await waitFor(() => expect(screen.getByText("Add to cart")).toBeDefined(), {
-      timeout: 2000,
-    });
-    act(() => plusButton.click());
-    act(() => addToCartbutton.click()); // Add 2 items
-    renderCartBtn();
-    renderCart();
-    expect(screen.getByText("CART (3)")).toBeDefined();
-    expect(screen.getByText("iPhone 9")).toBeDefined();
-    expect(screen.getByText("3")).toBeDefined();
-  });
-
-  it("should separate the different items in cart", async () => {
+  it("should show cart items with correct quantity", async () => {
     const { rerender } = renderAddToCart();
+    const plusButton = screen.getByText("+");
     const addToCartbutton = screen.getByText("Add to cart");
-    act(() => addToCartbutton.click()); // Add iPhone 9
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone 9 x 2
     await waitFor(() => expect(screen.getByText("Add to cart")).toBeDefined(), {
       timeout: 2000,
     });
     rerender(<AddToCart product={product2} />);
-    act(() => addToCartbutton.click()); // Add iPhone X
-    renderCartBtn();
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone X x 2
     renderCart();
-    expect(screen.getByText("CART (2)")).toBeDefined();
     expect(screen.getByText("iPhone 9")).toBeDefined();
     expect(screen.getByText("iPhone X")).toBeDefined();
+    expect(await screen.findAllByText("2")).toHaveLength(2);
+  });
+
+  it("should increase quantity correctly", async () => {
+    const { unmount } = renderAddToCart();
+    const plusButton = screen.getByText("+");
+    const addToCartbutton = screen.getByText("Add to cart");
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone 9 x 2
+    unmount();
+    renderCart();
+    const cartPlusButton = screen.getByText("+");
+    expect(screen.getByText("iPhone 9")).toBeDefined();
+    expect(screen.getByText("2")).toBeDefined();
+    act(() => cartPlusButton.click());
+    expect(screen.getByText("3")).toBeDefined();
+  });
+
+  it("should decrease quantity correctly", async () => {
+    const { unmount } = renderAddToCart();
+    const plusButton = screen.getByText("+");
+    const addToCartbutton = screen.getByText("Add to cart");
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone 9 x 2
+    unmount();
+    renderCart();
+    const cartMinusButton = screen.getByText("-");
+    expect(screen.getByText("iPhone 9")).toBeDefined();
+    expect(screen.getByText("2")).toBeDefined();
+    act(() => cartMinusButton.click());
+    expect(screen.getByText("1")).toBeDefined();
+  });
+
+  it("should remove item correctly", async () => {
+    const { unmount } = renderAddToCart();
+    const addToCartbutton = screen.getByText("Add to cart");
+    act(() => addToCartbutton.click()); // Add iPhone 9
+    unmount();
+    renderCart();
+    expect(screen.getByText("iPhone 9")).toBeDefined();
+    expect(screen.getByText("1")).toBeDefined();
+    const removeButton = screen.getByText("Remove");
+    act(() => removeButton.click());
+    expect(screen.getByText("No items in cart.")).toBeDefined();
   });
 });
