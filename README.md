@@ -108,5 +108,7 @@ bun run test
 Unit testing is available for the following components:
 
 - `app/ui/product/AddToCart.tsx`
+- `app/ui/product/ProductCategories.tsx`
 - `app/ui/Cart.tsx`
 - `app/ui/CartBtn.tsx`
+- `app/ui/Quantity.tsx`

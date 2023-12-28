@@ -105,4 +105,31 @@ describe("Cart", () => {
     act(() => removeButton.click());
     expect(screen.getByText("No items in cart.")).toBeDefined();
   });
+
+  it("should calculate line total correctly", async () => {
+    const { unmount } = renderAddToCart();
+    const plusButton = screen.getByText("+");
+    const addToCartbutton = screen.getByText("Add to cart");
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone 9 x 2
+    unmount();
+    renderCart();
+    expect(screen.getAllByText("S$1,098")).toBeDefined();
+  });
+
+  it("should calculate grand total correctly", async () => {
+    const { rerender } = renderAddToCart();
+    const plusButton = screen.getByText("+");
+    const addToCartbutton = screen.getByText("Add to cart");
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone 9 x 2
+    await waitFor(() => expect(screen.getByText("Add to cart")).toBeDefined(), {
+      timeout: 2000,
+    });
+    rerender(<AddToCart product={product2} />);
+    act(() => plusButton.click());
+    act(() => addToCartbutton.click()); // Add iPhone X x 2
+    renderCart();
+    expect(screen.getByText("S$2,896")).toBeDefined();
+  });
 });
