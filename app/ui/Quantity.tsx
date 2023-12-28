@@ -1,11 +1,15 @@
 interface QuantityProps {
   count: number;
+  min?: number;
+  max?: number;
   onClickMinus: () => void;
   onClickPlus: () => void;
 }
 
 export default function Quantity({
   count,
+  min = 1,
+  max = 99,
   onClickMinus,
   onClickPlus,
 }: QuantityProps) {
@@ -14,7 +18,7 @@ export default function Quantity({
       <button
         className="disabled:opacity-50"
         onClick={onClickMinus}
-        disabled={count <= 1}
+        disabled={count === min}
       >
         -
       </button>
@@ -22,7 +26,7 @@ export default function Quantity({
       <button
         className="disabled:opacity-50"
         onClick={onClickPlus}
-        disabled={count >= 99}
+        disabled={count === max}
       >
         +
       </button>
